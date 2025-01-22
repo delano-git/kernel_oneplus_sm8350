@@ -14,6 +14,18 @@ kernelsu-objs += selinux/rules.o
 ccflags-y += -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
 ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-generic/errno.h
 
+# GKI manual hook checks
+# https://github.com/Pzqqt/android_kernel_xiaomi_marble/commit/5b8596b5604bcd0e6e12697a01136a0bb9eb0257
+ifeq ($(CONFIG_KSU_MANUAL_HOOK),y)
+ifeq ($(CONFIG_KSU),m)
+$(error CONFIG_KSU_MANUAL_HOOK cannot be enabled when compiling KernelSU as LKM!)
+endif
+else
+ifeq ($(CONFIG_KPROBES),y)
+ccflags-y += -DKSU_HOOK_WITH_KPROBES
+endif
+endif
+
 obj-$(CONFIG_KSU) += kernelsu.o
 
 # KSU Version
